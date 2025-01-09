@@ -14,6 +14,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 operator = '';
                 previousInput = '';
                 display.value = '0';
+            } else if (value === 'DEL') {
+                currentInput = currentInput.slice(0, -1);
+                display.value = currentInput || '0';
             } else if (value === '=') {
                 if (currentInput && previousInput && operator) {
                     currentInput = eval(`${previousInput} ${operator} ${currentInput}`);
