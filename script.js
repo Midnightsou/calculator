@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
-    const display = document.querySelector('.display');
+    const display = document.querySelector('.display input');
     const buttons = document.querySelectorAll('button');
     let currentInput = '';
     let operator = '';
@@ -13,11 +13,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 currentInput = '';
                 operator = '';
                 previousInput = '';
-                display.textContent = '0';
+                display.value = '0';
             } else if (value === '=') {
                 if (currentInput && previousInput && operator) {
                     currentInput = eval(`${previousInput} ${operator} ${currentInput}`);
-                    display.textContent = currentInput;
+                    display.value = currentInput;
                     operator = '';
                     previousInput = '';
                 }
@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             } else {
                 currentInput += value;
-                display.textContent = currentInput;
+                display.value = currentInput;
             }
         });
     });
