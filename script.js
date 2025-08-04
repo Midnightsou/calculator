@@ -5,6 +5,19 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentInput = '';
     let operator = '';
     let previousInput = '';
+    let resultDisplayed = false;
+
+    function updateDisplay() {
+        display.value = currentInput || '0';
+    }
+
+    function updateHistory() {
+        if (previousInput && operator) {
+            history.value = `${previousInput} ${operator}`;
+        } else {
+            history.value = '';
+        }
+    }
 
     buttons.forEach(button => {
         button.addEventListener('click', function() {
@@ -14,29 +27,86 @@ document.addEventListener('DOMContentLoaded', function() {
                 currentInput = '';
                 operator = '';
                 previousInput = '';
-                display.value = '0';
+                resultDisplayed = false;
+                updateDisplay();
                 history.value = '';
             } else if (value === 'DEL') {
-                currentInput = currentInput.slice(0, -1);
-                display.value = currentInput || '0';
+                if (resultDisplayed) {
+                    currentInput = '';
+                    resultDisplayed = false;
+                } else {
+                    currentInput = currentInput.slice(0, -1);
+                }
+                updateDisplay();
             } else if (value === '=') {
                 if (currentInput && previousInput && operator) {
-                    const result = eval(`${previousInput} ${operator} ${currentInput}`);
+                    let a = parseFloat(previousInput);
+                    let b = parseFloat(currentInput);
+                    let result;
+                    switch (operator) {
+                        case '+': result = a + b; break;
+                        case '-': result = a - b; break;
+                        case '*': result = a * b; break;
+                        case '/': result = b === 0 ? 'Error' : a / b; break;
+                        case '%': result = a % b; break;
+                        default: result = b;
+                    }
                     history.value = `${previousInput} ${operator} ${currentInput} =`;
-                    currentInput = result;
-                    display.value = currentInput;
+                    currentInput = result.toString();
+                    updateDisplay();
                     operator = '';
                     previousInput = '';
+                    resultDisplayed = true;
                 }
-            } else if (['+', '-', '*', '/'].includes(value)) {
+            } else if (['+', '-', '*', '/', '%'].includes(value)) {
                 if (currentInput) {
+                    if (previousInput && operator && !resultDisplayed) {
+                        // Chain calculation
+                        let a = parseFloat(previousInput);
+                        let b = parseFloat(currentInput);
+                        let result;
+                        switch (operator) {
+                            case '+': result = a + b; break;
+                            case '-': result = a - b; break;
+                            case '*': result = a * b; break;
+                            case '/': result = b === 0 ? 'Error' : a / b; break;
+                            case '%': result = a % b; break;
+                            default: result = b;
+                        }
+                        previousInput = result.toString();
+                    } else {
+                        previousInput = currentInput;
+                    }
                     operator = value;
-                    previousInput = currentInput;
                     currentInput = '';
+                    resultDisplayed = false;
+                    updateHistory();
+                } else if (previousInput && operator) {
+                    operator = value; // Change operator if pressed again
+                    updateHistory();
+                }
+            } else if (value === '.') {
+                if (!currentInput.includes('.')) {
+                    currentInput += currentInput ? '.' : '0.';
+                    updateDisplay();
+                }
+            } else if (value === '+/-') {
+                if (currentInput) {
+                    if (currentInput.startsWith('-')) {
+                        currentInput = currentInput.slice(1);
+                    } else {
+                        currentInput = '-' + currentInput;
+                    }
+                    updateDisplay();
                 }
             } else {
-                currentInput += value;
-                display.value = currentInput;
+                if (resultDisplayed) {
+                    currentInput = value;
+                    resultDisplayed = false;
+                } else {
+                    currentInput += value;
+                }
+                updateDisplay();
             }
         });
     });
